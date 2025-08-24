@@ -1,0 +1,46 @@
+<section class="toolbar">
+  <input [(ngModel)]="q" placeholder="Search…" (keyup.enter)="search()" />
+  <select [(ngModel)]="category">
+    <option value="">All categories</option>
+    <option>Buy & Sell</option>
+    <option>Rent</option>
+    <option>Events</option>
+    <option>Travel</option>
+  </select>
+  <input type="number" [(ngModel)]="minPrice" placeholder="Min $" />
+  <input type="number" [(ngModel)]="maxPrice" placeholder="Max $" />
+  <button (click)="search()">Go</button>
+  <button (click)="toggleNearMe()">{{ nearMe ? 'Clear location' : 'Near me' }}</button>
+  <button (click)="create()">+ New Ad</button>
+</section>
+
+<google-map
+  height="260px"
+  *ngIf="nearMe && me"
+  [center]="{ lat: me!.coords.latitude!, lng: me!.coords.longitude! }"
+  [zoom]="12"
+>
+  <map-marker
+    [position]="{ lat: me!.coords.latitude!, lng: me!.coords.longitude! }"
+    title="You"
+  ></map-marker>
+  <map-circle
+    [center]="{ lat: me!.coords.latitude!, lng: me!.coords.longitude! }"
+    [radius]="radius"
+  ></map-circle>
+</google-map>
+
+<ul class="cards">
+  <li *ngFor="let a of ads" class="card">
+    <img *ngIf="a.imageUrl" [src]="a.imageUrl" alt="" />
+    <div class="meta">
+      <h3>{{ a.title }}</h3>
+      <p class="muted">{{ a.category }} • ${{ a.price }}</p>
+      <p>{{ a.description }}</p>
+      <div class="actions">
+        <button (click)="edit(a)">Edit</button>
+        <button (click)="remove(a)">Delete</button>
+      </div>
+    </div>
+  </li>
+</ul>

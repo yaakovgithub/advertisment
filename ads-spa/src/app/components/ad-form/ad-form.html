@@ -1,0 +1,27 @@
+<form (ngSubmit)="save()" #f="ngForm" class="form">
+  <label>Title <input [(ngModel)]="model.title" name="title" required /></label>
+  <label
+    >Category
+    <select [(ngModel)]="model.category" name="category">
+      <option>Buy & Sell</option>
+      <option>Rent</option>
+      <option>Events</option>
+      <option>Travel</option>
+    </select>
+  </label>
+  <label>Price <input type="number" [(ngModel)]="model.price" name="price" required /></label>
+  <label>Image URL <input [(ngModel)]="model.imageUrl" name="imageUrl" /></label>
+  <label
+    >Description <textarea [(ngModel)]="model.description" name="description"></textarea>
+  </label>
+
+  <div class="map-block">
+    <google-map height="320px" [center]="mapCenter" [zoom]="10" (mapClick)="mapClick($event)">
+      <map-marker *ngIf="marker" [position]="marker!"></map-marker>
+    </google-map>
+    <small>Click map to set location (optional).</small>
+  </div>
+
+  <button [disabled]="f.invalid">Save</button>
+  <a routerLink="/" class="muted">Cancel</a>
+</form>
