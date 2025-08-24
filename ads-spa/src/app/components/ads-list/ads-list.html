@@ -13,8 +13,9 @@
   <button (click)="toggleNearMe()">{{ nearMe ? 'Clear location' : 'Near me' }}</button>
   <button (click)="create()">+ New Ad</button>
 </section>
+<div *ngIf="nearMe" id="nearme-map" style="height: 260px; border-radius: 8px; margin: 8px 0"></div>
 
-<google-map
+<!-- <google-map
   height="260px"
   *ngIf="nearMe && me"
   [center]="{ lat: me!.coords.latitude!, lng: me!.coords.longitude! }"
@@ -28,7 +29,7 @@
     [center]="{ lat: me!.coords.latitude!, lng: me!.coords.longitude! }"
     [radius]="radius"
   ></map-circle>
-</google-map>
+</google-map> -->
 
 <ul class="cards">
   <li *ngFor="let a of ads" class="card">

@@ -16,9 +16,10 @@
   </label>
 
   <div class="map-block">
-    <google-map height="320px" [center]="mapCenter" [zoom]="10" (mapClick)="mapClick($event)">
+    <!-- <google-map height="320px" [center]="mapCenter" [zoom]="10" (mapClick)="mapClick($event)">
       <map-marker *ngIf="marker" [position]="marker!"></map-marker>
-    </google-map>
+    </google-map> -->
+    <div id="ad-form-map" style="height: 260px; border-radius: 8px; margin: 8px 0"></div>
     <small>Click map to set location (optional).</small>
   </div>
 
