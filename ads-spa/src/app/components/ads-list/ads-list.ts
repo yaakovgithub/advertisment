@@ -35,13 +35,18 @@ export class AdsList implements OnInit {
   private meCircle?: L.Circle;
   constructor(public adsSvc: AdsService, private router: Router, private dialog: MatDialog) {}
   openAdForm(id?: string) {
-    this.dialog.open(AdFormDialog, {
-      width: '520px',
-      data: { id },
-      disableClose: true,
-    }).afterClosed().subscribe(() => {
-      this.adsSvc.list().subscribe();
-    });
+    this.dialog
+      .open(AdFormDialog, {
+        width: '640px',
+        maxWidth: '95vw',
+        data: { id },
+        disableClose: true,
+        panelClass: 'ad-form-dialog-panel',
+      })
+      .afterClosed()
+      .subscribe(() => {
+        this.adsSvc.list().subscribe();
+      });
   }
 
   ngOnInit() {
@@ -113,30 +118,49 @@ export class AdsList implements OnInit {
       this.search();
     }
   }
+
   async search() {
+    // Only send category/price filters to backend
+    const f: any = {
+      category: this.category,
+      minPrice: this.minPrice,
+      maxPrice: this.maxPrice,
+    };
+    await this.adsSvc.list(f).toPromise();
     let filteredAds = this.adsSvc.ads$.getValue();
+    // Location/proximity filtering in frontend
     if (this.q.trim()) {
       const geo = await this.geocodeAddress(this.q.trim());
       if (geo) {
-        // Filter ads within 20km of the geocoded location
         const radiusKm = 20;
         filteredAds = filteredAds.filter((ad) => {
           if (ad.lat != null && ad.lng != null) {
             const dist = this.getDistanceKm(geo.lat, geo.lng, ad.lat, ad.lng);
             return dist <= radiusKm;
           }
-          // Optionally match address string if ad has no lat/lng
           if (ad.address) {
             return ad.address.toLowerCase().includes(this.q.trim().toLowerCase());
           }
           return false;
         });
       } else {
-        // Optionally match address string if geocoding fails
         filteredAds = filteredAds.filter(
           (ad) => ad.address && ad.address.toLowerCase().includes(this.q.trim().toLowerCase())
         );
       }
+    }
+    // Near me filtering
+    if (this.nearMe && this.me) {
+      const lat = this.me.coords.latitude;
+      const lng = this.me.coords.longitude;
+      const radiusKm = this.radius / 1000;
+      filteredAds = filteredAds.filter((ad) => {
+        if (ad.lat != null && ad.lng != null) {
+          const dist = this.getDistanceKm(lat, lng, ad.lat, ad.lng);
+          return dist <= radiusKm;
+        }
+        return false;
+      });
     }
     this.ads = filteredAds;
   }

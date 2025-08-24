@@ -11,7 +11,14 @@ import { MatDialogModule } from '@angular/material/dialog';
   standalone: true,
   imports: [CommonModule, MatDialogModule, AdForm],
   template: `
-    <h2 mat-dialog-title>{{ data.id ? 'Edit Ad' : 'Add New Ad' }}</h2>
+    <div
+      style="display: flex; align-items: center; padding: 0.5rem 1rem 0.5rem 1rem; border-bottom: 1px solid #eee; background: #fafbfc;"
+    >
+      <span
+        style="font-size: 1.2rem; font-weight: 600; letter-spacing: 0.5px; color: #1976d2; flex: 1;"
+        >{{ data.id ? 'Edit Ad' : 'Add New Ad' }}</span
+      >
+    </div>
     <app-ad-form [id]="data.id" (close)="onClose()"></app-ad-form>
   `,
 })
