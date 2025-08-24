@@ -32,15 +32,32 @@
       travel: a.category === 'Travel'
     }"
   >
-    <div class="category">{{ a.category }}</div>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <div class="category">{{ a.category }}</div>
+      <div class="location"
+        [ngClass]="{
+          'buy-sell': a.category === 'Buy & Sell',
+          'rent': a.category === 'Rent',
+          'event': a.category === 'Events',
+          'travel': a.category === 'Travel'
+        }"
+        [style.color]="a.category === 'Buy & Sell' ? '#42a5f5' : a.category === 'Rent' ? '#66bb6a' : a.category === 'Events' ? '#ab47bc' : '#ffa726'"
+        style="font-weight:600;">
+        <ng-container *ngIf="getCityName(a.address || '') !== 'no location provided'; else noLoc">
+          <span>around&nbsp;{{ getCityName(a.address || '') }}</span>
+        </ng-container>
+        <ng-template #noLoc>
+          <span>{{ getCityName(a.address || '') }}</span>
+        </ng-template>
+      </div>
+    </div>
     <div class="title">{{ a.title }}</div>
     <img *ngIf="a.imageUrl" [src]="a.imageUrl" alt="" class="thumbnail" />
     <div class="description">{{ a.description }}</div>
     <div class="price" *ngIf="a.price !== undefined">Price: ${{ a.price }}</div>
     <div class="actions">
-      <button (click)="openAdForm(a.id)" style="margin-right: 8px">Edit</button>
-      <!-- <button (click)="edit(a)">Edit</button> -->
-      <button (click)="remove(a)">Delete</button>
+      <button class="action-btn edit-btn" (click)="openAdForm(a.id)">Edit</button>
+      <button class="action-btn delete-btn" (click)="remove(a)">Delete</button>
     </div>
   </div>
 </div>

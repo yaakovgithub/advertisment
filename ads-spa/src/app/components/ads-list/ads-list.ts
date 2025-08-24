@@ -4,8 +4,8 @@ import { AdFormDialog } from '../ad-form-dialog/ad-form-dialog';
 import { AdsService } from '../../services/ads';
 import { Ad } from '../../models/ad';
 import { Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 import * as L from 'leaflet';
 @Component({
@@ -57,6 +57,35 @@ export class AdsList implements OnInit {
   ngOnDestroy(): void {
     this.map?.remove();
   }
+  getCityName(address: string): string {
+    if (!address) return '';
+    const parts = address.split(',').map((s) => s.trim());
+    // Heuristic: city is usually the 3rd or 4th part in Nominatim addresses
+    // Try to find a part that looks like a city (not a street, not a number)
+    for (let i = 2; i < Math.min(parts.length, 6); i++) {
+      if (/^[A-Za-z\u0590-\u05FF\s'-]+$/.test(parts[i]) && parts[i].length > 2) {
+        return parts[i];
+      }
+    }
+    // Fallback: return the last part
+    return parts.length > 1 ? parts[parts.length - 2] : parts[0];
+  }
+  // getCityName(address: string): string {
+  //   if (!address) return '';
+  //   // Try to extract city name from OSM/Nominatim address format
+  //   const parts = address.split(',').map(s => s.trim());
+  //   // Heuristic: city is usually 2nd or 3rd part, skip street/building
+  //   if (parts.length > 2) {
+  //     // Find the first part that looks like a city (not a street, not a number)
+  //     for (let i = 1; i < Math.min(parts.length, 5); i++) {
+  //       if (/^[A-Za-z\u0590-\u05FF\s'-]+$/.test(parts[i]) && parts[i].length > 2) {
+  //         return parts[i];
+  //       }
+  //     }
+  //   }
+  //   // Fallback: return first non-empty part
+  //   return parts.find(p => p.length > 2) || parts[0];
+  // }
   async geocodeAddress(address: string): Promise<{ lat: number; lng: number } | null> {
     const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
       address
@@ -120,47 +149,46 @@ export class AdsList implements OnInit {
   }
 
   async search() {
-    // Only send category/price filters to backend
-    const f: any = {
-      category: this.category,
-      minPrice: this.minPrice,
-      maxPrice: this.maxPrice,
-    };
-    await this.adsSvc.list(f).toPromise();
     let filteredAds = this.adsSvc.ads$.getValue();
-    // Location/proximity filtering in frontend
+    // Filter by category
+    if (this.category) {
+      filteredAds = filteredAds.filter((ad) => ad.category === this.category);
+    }
+    // Filter by min price
+    if (typeof this.minPrice === 'number' && !isNaN(this.minPrice)) {
+      filteredAds = filteredAds.filter(
+        (ad) => ad.price != null && typeof ad.price === 'number' && ad.price >= this.minPrice!
+      );
+    }
+    // Filter by max price
+    if (typeof this.maxPrice === 'number' && !isNaN(this.maxPrice)) {
+      filteredAds = filteredAds.filter(
+        (ad) => ad.price != null && typeof ad.price === 'number' && ad.price <= this.maxPrice!
+      );
+    }
+    // Filter by location/q
     if (this.q.trim()) {
       const geo = await this.geocodeAddress(this.q.trim());
       if (geo) {
+        // Filter ads within 20km of the geocoded location
         const radiusKm = 20;
         filteredAds = filteredAds.filter((ad) => {
           if (ad.lat != null && ad.lng != null) {
             const dist = this.getDistanceKm(geo.lat, geo.lng, ad.lat, ad.lng);
             return dist <= radiusKm;
           }
+          // Optionally match address string if ad has no lat/lng
           if (ad.address) {
             return ad.address.toLowerCase().includes(this.q.trim().toLowerCase());
           }
           return false;
         });
       } else {
+        // Optionally match address string if geocoding fails
         filteredAds = filteredAds.filter(
           (ad) => ad.address && ad.address.toLowerCase().includes(this.q.trim().toLowerCase())
         );
       }
-    }
-    // Near me filtering
-    if (this.nearMe && this.me) {
-      const lat = this.me.coords.latitude;
-      const lng = this.me.coords.longitude;
-      const radiusKm = this.radius / 1000;
-      filteredAds = filteredAds.filter((ad) => {
-        if (ad.lat != null && ad.lng != null) {
-          const dist = this.getDistanceKm(lat, lng, ad.lat, ad.lng);
-          return dist <= radiusKm;
-        }
-        return false;
-      });
     }
     this.ads = filteredAds;
   }

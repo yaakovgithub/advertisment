@@ -1,0 +1,115 @@
+// Ensure cards keep fixed width and height, and grid layout is consistent
+
+
+.posts-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+	gap: 24px;
+	justify-items: center;
+	align-items: start;
+}
+
+.post-card {
+	width: 320px;
+	min-height: 340px;
+	max-width: 100%;
+	box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+	border-radius: 12px;
+	background: #fff;
+	display: flex;
+	flex-direction: column;
+	padding: 18px 18px 12px 18px;
+	transition: box-shadow 0.2s;
+}
+
+.post-card:hover {
+	box-shadow: 0 4px 16px rgba(0,0,0,0.16);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.action-btn {
+  font-size: 15px;
+  font-weight: 600;
+  padding: 7px 18px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  margin-left: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.edit-btn {
+  background: linear-gradient(90deg, #42a5f5 0%, #478ed1 100%);
+  color: #fff;
+}
+.edit-btn:hover {
+  background: linear-gradient(90deg, #478ed1 0%, #42a5f5 100%);
+  box-shadow: 0 2px 8px rgba(66,165,245,0.18);
+}
+
+.delete-btn {
+  background: linear-gradient(90deg, #e53935 0%, #d32f2f 100%);
+  color: #fff;
+}
+.delete-btn:hover {
+  background: linear-gradient(90deg, #d32f2f 0%, #e53935 100%);
+  box-shadow: 0 2px 8px rgba(229,57,53,0.18);
+}
+
+.search-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.search-bar input[type="text"],
+.search-bar input[type="number"],
+.search-bar select {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  font-size: 15px;
+  background: #fafbfc;
+  transition: border 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  outline: none;
+}
+.search-bar input[type="text"]:focus,
+.search-bar input[type="number"]:focus,
+.search-bar select:focus {
+  border-color: #42a5f5;
+  box-shadow: 0 2px 8px rgba(66,165,245,0.10);
+}
+
+.search-bar button {
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  background: linear-gradient(90deg, #42a5f5 0%, #478ed1 100%);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  margin-right: 6px;
+}
+.search-bar button:last-child {
+  background: linear-gradient(90deg, #ffa726 0%, #ff7043 100%);
+}
+.search-bar button:hover {
+  background: linear-gradient(90deg, #478ed1 0%, #42a5f5 100%);
+  box-shadow: 0 2px 8px rgba(66,165,245,0.18);
+}
+.search-bar button:last-child:hover {
+  background: linear-gradient(90deg, #ff7043 0%, #ffa726 100%);
+  box-shadow: 0 2px 8px rgba(255,167,38,0.18);
+}

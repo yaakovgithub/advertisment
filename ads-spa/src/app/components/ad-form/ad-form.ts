@@ -176,6 +176,9 @@ export class AdForm implements AfterViewInit {
   save() {
     // Ensure address is included in the model
     const op = this.id ? this.adsSvc.update(this.id!, this.model) : this.adsSvc.create(this.model);
-    op.subscribe(() => this.router.navigateByUrl('/'));
+    op.subscribe(() => {
+      this.close.emit();
+      this.router.navigateByUrl('/');
+    });
   }
 }
