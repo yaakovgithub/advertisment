@@ -64,9 +64,9 @@ app.MapPost("/ads", (AdsStore store, AdDto dto) =>
 app.MapPut("/ads/{id}", (AdsStore store, Guid id, AdDto dto) =>
 {
     if (!store.TryGet(id, out var existing)) return Results.NotFound();
-    existing.UpdateFrom(dto);
-    store.Upsert(existing);
-    return Results.Ok(existing);
+    var updated=existing.UpdateFrom(dto);
+    store.Upsert(updated);
+    return Results.Ok(updated);
 });
 
 app.MapDelete("/ads/{id}", (AdsStore store, Guid id) =>
@@ -86,11 +86,12 @@ record Ad(
     string? ImageUrl,
     double? Lat,
     double? Lng,
+    string? Address,
     DateTime CreatedAt)
 {
     public static Ad FromDto(AdDto dto) =>
         new(Guid.NewGuid(), dto.Title, dto.Description, dto.Category, dto.Price,
-            dto.ImageUrl, dto.Lat, dto.Lng, DateTime.UtcNow);
+            dto.ImageUrl, dto.Lat, dto.Lng, dto.Address, DateTime.UtcNow);
 
     public Ad UpdateFrom(AdDto dto)
         => this with
@@ -101,7 +102,8 @@ record Ad(
             Price = dto.Price,
             ImageUrl = dto.ImageUrl,
             Lat = dto.Lat,
-            Lng = dto.Lng
+            Lng = dto.Lng,
+            Address = dto.Address
         };
 }
 
@@ -112,7 +114,8 @@ record AdDto(
     int Price,
     string? ImageUrl,
     double? Lat,
-    double? Lng);
+    double? Lng,
+    string? Address);
 
 class AdsStore
 {
