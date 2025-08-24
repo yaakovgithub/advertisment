@@ -26,8 +26,6 @@ export class AdsList implements OnInit {
 
   ads: Ad[] = [];
 
-  // Leaflet mini-map
-
   private map?: L.Map;
 
   private meMarker?: L.Marker;
@@ -70,22 +68,7 @@ export class AdsList implements OnInit {
     // Fallback: return the last part
     return parts.length > 1 ? parts[parts.length - 2] : parts[0];
   }
-  // getCityName(address: string): string {
-  //   if (!address) return '';
-  //   // Try to extract city name from OSM/Nominatim address format
-  //   const parts = address.split(',').map(s => s.trim());
-  //   // Heuristic: city is usually 2nd or 3rd part, skip street/building
-  //   if (parts.length > 2) {
-  //     // Find the first part that looks like a city (not a street, not a number)
-  //     for (let i = 1; i < Math.min(parts.length, 5); i++) {
-  //       if (/^[A-Za-z\u0590-\u05FF\s'-]+$/.test(parts[i]) && parts[i].length > 2) {
-  //         return parts[i];
-  //       }
-  //     }
-  //   }
-  //   // Fallback: return first non-empty part
-  //   return parts.find(p => p.length > 2) || parts[0];
-  // }
+
   async geocodeAddress(address: string): Promise<{ lat: number; lng: number } | null> {
     const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
       address
@@ -109,17 +92,31 @@ export class AdsList implements OnInit {
     setTimeout(() => this.map!.invalidateSize(), 0);
   }
 
-  toggleNearMe() {
+  async toggleNearMe() {
     if (!this.nearMe) {
       this.nearMe = true;
       setTimeout(() => this.ensureMap(), 0); // make sure map exists after DOM shows
       navigator.geolocation.getCurrentPosition(
-        (p) => {
+        async (p) => {
           this.me = p;
 
           // this.ensureMap();
 
           const latlng: L.LatLngExpression = [p.coords.latitude, p.coords.longitude];
+          // this.q = latlng.toString();
+
+          const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${p.coords.latitude}&lon=${p.coords.longitude}`;
+          try {
+            const response = await fetch(url);
+            const result = await response.json();
+            if (result && result.display_name) {
+              this.q = result.display_name;
+            } else {
+              this.q = '';
+            }
+          } catch {
+            this.q = '';
+          }
 
           this.map!.setView(latlng, 13);
 
@@ -138,7 +135,7 @@ export class AdsList implements OnInit {
       );
     } else {
       this.nearMe = false;
-
+      this.q = '';
       this.map?.remove();
       this.map = undefined;
       this.meMarker = undefined;
@@ -192,21 +189,6 @@ export class AdsList implements OnInit {
     }
     this.ads = filteredAds;
   }
-
-  // search() {
-  //   const f: any = {
-  //     q: this.q,
-  //     category: this.category,
-  //     minPrice: this.minPrice,
-  //     maxPrice: this.maxPrice,
-  //   };
-  //   if (this.nearMe && this.me) {
-  //     f.lat = this.me.coords.latitude;
-  //     f.lng = this.me.coords.longitude;
-  //     f.radiusMeters = this.radius;
-  //   }
-  //   this.adsSvc.list(f).subscribe();
-  // }
 
   edit(a: Ad) {
     this.router.navigate(['/edit', a.id]);

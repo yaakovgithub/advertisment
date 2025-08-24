@@ -32,17 +32,27 @@
       travel: a.category === 'Travel'
     }"
   >
-    <div style="display: flex; justify-content: space-between; align-items: center;">
+    <div style="display: flex; justify-content: space-between; align-items: center">
       <div class="category">{{ a.category }}</div>
-      <div class="location"
+      <div
+        class="location"
         [ngClass]="{
           'buy-sell': a.category === 'Buy & Sell',
-          'rent': a.category === 'Rent',
-          'event': a.category === 'Events',
-          'travel': a.category === 'Travel'
+          rent: a.category === 'Rent',
+          event: a.category === 'Events',
+          travel: a.category === 'Travel'
         }"
-        [style.color]="a.category === 'Buy & Sell' ? '#42a5f5' : a.category === 'Rent' ? '#66bb6a' : a.category === 'Events' ? '#ab47bc' : '#ffa726'"
-        style="font-weight:600;">
+        [style.color]="
+          a.category === 'Buy & Sell'
+            ? '#42a5f5'
+            : a.category === 'Rent'
+            ? '#66bb6a'
+            : a.category === 'Events'
+            ? '#ab47bc'
+            : '#ffa726'
+        "
+        style="font-weight: 600"
+      >
         <ng-container *ngIf="getCityName(a.address || '') !== 'no location provided'; else noLoc">
           <span>around&nbsp;{{ getCityName(a.address || '') }}</span>
         </ng-container>
@@ -52,12 +62,22 @@
       </div>
     </div>
     <div class="title">{{ a.title }}</div>
-    <img *ngIf="a.imageUrl" [src]="a.imageUrl" alt="" class="thumbnail" />
-    <div class="description">{{ a.description }}</div>
-    <div class="price" *ngIf="a.price !== undefined">Price: ${{ a.price }}</div>
-    <div class="actions">
-      <button class="action-btn edit-btn" (click)="openAdForm(a.id)">Edit</button>
-      <button class="action-btn delete-btn" (click)="remove(a)">Delete</button>
+    <ng-container *ngIf="a.imageUrl; else noImage">
+      <img [src]="a.imageUrl" alt="" class="thumbnail" />
+      <div class="description">{{ a.description }}</div>
+    </ng-container>
+    <ng-template #noImage>
+      <div class="description no-image">{{ a.description }}</div>
+    </ng-template>
+    <div class="bottom-meta">
+      <div class="bottom-row">
+        <div class="price" *ngIf="a.price !== undefined">Price: ${{ a.price }}</div>
+        <div class="actions">
+          <button class="action-btn edit-btn" (click)="openAdForm(a.id)">Edit</button>
+          <button class="action-btn delete-btn" (click)="remove(a)">Delete</button>
+        </div>
+      </div>
+      <div class="ad-meta-fixed">Created at: {{ a.createdAt | date:'medium' }}</div>
     </div>
   </div>
 </div>
