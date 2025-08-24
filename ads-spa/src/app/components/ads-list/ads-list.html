@@ -1,5 +1,10 @@
-<section class="toolbar">
-  <input [(ngModel)]="q" placeholder="Search…" (keyup.enter)="search()" />
+<div class="search-bar">
+  <input
+    [(ngModel)]="q"
+    type="text"
+    placeholder="Type address or a place nearby in any language"
+    (keyup.enter)="search()"
+  />
   <select [(ngModel)]="category">
     <option value="">All categories</option>
     <option>Buy & Sell</option>
@@ -12,36 +17,29 @@
   <button (click)="search()">Go</button>
   <button (click)="toggleNearMe()">{{ nearMe ? 'Clear location' : 'Near me' }}</button>
   <button (click)="create()">+ New Ad</button>
-</section>
+</div>
+
 <div *ngIf="nearMe" id="nearme-map" style="height: 260px; border-radius: 8px; margin: 8px 0"></div>
 
-<!-- <google-map
-  height="260px"
-  *ngIf="nearMe && me"
-  [center]="{ lat: me!.coords.latitude!, lng: me!.coords.longitude! }"
-  [zoom]="12"
->
-  <map-marker
-    [position]="{ lat: me!.coords.latitude!, lng: me!.coords.longitude! }"
-    title="You"
-  ></map-marker>
-  <map-circle
-    [center]="{ lat: me!.coords.latitude!, lng: me!.coords.longitude! }"
-    [radius]="radius"
-  ></map-circle>
-</google-map> -->
-
-<ul class="cards">
-  <li *ngFor="let a of ads" class="card">
-    <img *ngIf="a.imageUrl" [src]="a.imageUrl" alt="" />
-    <div class="meta">
-      <h3>{{ a.title }}</h3>
-      <p class="muted">{{ a.category }} • ${{ a.price }}</p>
-      <p>{{ a.description }}</p>
-      <div class="actions">
-        <button (click)="edit(a)">Edit</button>
-        <button (click)="remove(a)">Delete</button>
-      </div>
+<div class="posts-grid">
+  <div
+    *ngFor="let a of ads"
+    class="post-card"
+    [ngClass]="{
+      'buy-sell': a.category === 'Buy & Sell',
+      rent: a.category === 'Rent',
+      event: a.category === 'Events',
+      travel: a.category === 'Travel'
+    }"
+  >
+    <div class="category">{{ a.category }}</div>
+    <div class="title">{{ a.title }}</div>
+    <img *ngIf="a.imageUrl" [src]="a.imageUrl" alt="" class="thumbnail" />
+    <div class="description">{{ a.description }}</div>
+    <div class="price" *ngIf="a.price !== undefined">Price: ${{ a.price }}</div>
+    <div class="actions">
+      <button (click)="edit(a)">Edit</button>
+      <button (click)="remove(a)">Delete</button>
     </div>
-  </li>
-</ul>
+  </div>
+</div>

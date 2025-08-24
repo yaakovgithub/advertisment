@@ -1,28 +1,56 @@
-<form (ngSubmit)="save()" #f="ngForm" class="form">
-  <label>Title <input [(ngModel)]="model.title" name="title" required /></label>
-  <label
-    >Category
-    <select [(ngModel)]="model.category" name="category">
+<form (ngSubmit)="save()" #f="ngForm" class="post-card" style="max-width: 480px; margin: 2rem auto"
+  [ngClass]="{
+    'buy-sell': model.category === 'Buy & Sell',
+    'rent': model.category === 'Rent',
+    'event': model.category === 'Events',
+    'travel': model.category === 'Travel'
+  }">
+  <div class="title">Add New Ad</div>
+  <div class="category">
+    <label>Category</label>
+    <select [(ngModel)]="model.category" name="category" required>
+      <option value="">Select category</option>
       <option>Buy & Sell</option>
       <option>Rent</option>
       <option>Events</option>
       <option>Travel</option>
     </select>
-  </label>
-  <label>Price <input type="number" [(ngModel)]="model.price" name="price" required /></label>
-  <label>Image URL <input [(ngModel)]="model.imageUrl" name="imageUrl" /></label>
-  <label
-    >Description <textarea [(ngModel)]="model.description" name="description"></textarea>
-  </label>
-
+  </div>
+  <div>
+    <label>Title</label>
+    <input [(ngModel)]="model.title" name="title" required />
+  </div>
+  <div>
+    <label>Price</label>
+    <input type="number" [(ngModel)]="model.price" name="price" required />
+  </div>
+  <div>
+    <label>Image URL</label>
+    <input [(ngModel)]="model.imageUrl" name="imageUrl" />
+  </div>
+  <div>
+    <label>Description</label>
+    <textarea [(ngModel)]="model.description" name="description"></textarea>
+  </div>
   <div class="map-block">
-    <!-- <google-map height="320px" [center]="mapCenter" [zoom]="10" (mapClick)="mapClick($event)">
-      <map-marker *ngIf="marker" [position]="marker!"></map-marker>
-    </google-map> -->
-    <div id="ad-form-map" style="height: 260px; border-radius: 8px; margin: 8px 0"></div>
+    <div id="ad-form-map" style="height: 180px; border-radius: 8px; margin: 8px 0"></div>
     <small>Click map to set location (optional).</small>
   </div>
-
-  <button [disabled]="f.invalid">Save</button>
-  <a routerLink="/" class="muted">Cancel</a>
+  <div style="display: flex; gap: 1rem; margin-top: 1.5rem">
+    <button [disabled]="f.invalid" style="flex: 1">Save</button>
+    <button
+      routerLink="/"
+      class="muted"
+      style="
+        flex: 1;
+        text-align: center;
+        padding: 0.75rem 0;
+        background: #eee;
+        border-radius: 6px;
+        text-decoration: none;
+      "
+    >
+      Cancel
+    </button>
+  </div>
 </form>
