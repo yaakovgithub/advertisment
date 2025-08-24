@@ -1,3 +1,5 @@
+// Geocode address and set lat/lng
+
 // import { Component, OnInit } from '@angular/core';
 // import { ActivatedRoute, Router } from '@angular/router';
 // import { AdsService } from '../../services/ads';
@@ -52,7 +54,7 @@
 //   }
 // }
 
-import { Component, inject, AfterViewInit } from '@angular/core';
+import { Component, inject, AfterViewInit, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -71,9 +73,25 @@ export class AdForm implements AfterViewInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private adsSvc = inject(AdsService);
-
-  id?: string;
-  model: AdDto = { title: '', description: '', category: 'Buy & Sell', price: 0 };
+  @Input() id?: string;
+  @Output() close = new EventEmitter<void>();
+  // id?: string;
+  model: AdDto = { title: '', description: '', category: 'Buy & Sell', price: 0, address: '' };
+  // Geocode address and set lat/lng
+  // async useAddress() {
+  //   if (!this.model.address || !this.model.address.trim()) return;
+  //   const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(this.model.address)}`;
+  //   const response = await fetch(url);
+  //   const results = await response.json();
+  //   if (results.length > 0) {
+  //     this.model.lat = parseFloat(results[0].lat);
+  //     this.model.lng = parseFloat(results[0].lon);
+  //     if (this.map) {
+  //       this.setMarker([this.model.lat, this.model.lng]);
+  //       this.map.setView([this.model.lat, this.model.lng], 12);
+  //     }
+  //   }
+  // }
 
   // Leaflet
   private map?: L.Map;
@@ -83,11 +101,20 @@ export class AdForm implements AfterViewInit {
   ngAfterViewInit() {
     this.initMap();
     setTimeout(() => this.map!.invalidateSize(), 0); // 👈 important
-    this.id = this.route.snapshot.paramMap.get('id') ?? undefined;
+    // Only use @Input() id, do not overwrite with route param
     if (this.id) {
       this.adsSvc.get(this.id).subscribe((a: Ad) => {
-        const { title, description, category, price, imageUrl, lat, lng } = a;
-        this.model = { title, description, category, price, imageUrl, lat, lng };
+        const { title, description, category, price, imageUrl, lat, lng, address } = a;
+        this.model = {
+          title,
+          description,
+          category,
+          price,
+          imageUrl,
+          lat,
+          lng,
+          address: address || '',
+        };
         if (lat != null && lng != null) {
           this.setMarker([lat, lng]);
           this.map!.setView([lat, lng], 12);
@@ -102,13 +129,44 @@ export class AdForm implements AfterViewInit {
       attribution: '&copy; OpenStreetMap',
     }).addTo(this.map);
 
-    this.map.on('click', (e: L.LeafletMouseEvent) => {
+    this.map.on('click', async (e: L.LeafletMouseEvent) => {
       this.setMarker(e.latlng);
       this.model.lat = e.latlng.lat;
       this.model.lng = e.latlng.lng;
+      // Reverse geocode to get address
+      const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${e.latlng.lat}&lon=${e.latlng.lng}`;
+      try {
+        const response = await fetch(url);
+        const result = await response.json();
+        if (result && result.display_name) {
+          this.model.address = result.display_name;
+        } else {
+          this.model.address = '';
+        }
+      } catch {
+        this.model.address = '';
+      }
     });
   }
-
+  cancel() {
+    this.close.emit();
+  }
+  async useAddress() {
+    if (!this.model.address || !this.model.address.trim()) return;
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+      this.model.address
+    )}`;
+    const response = await fetch(url);
+    const results = await response.json();
+    if (results.length > 0) {
+      this.model.lat = parseFloat(results[0].lat);
+      this.model.lng = parseFloat(results[0].lon);
+      if (this.map) {
+        this.setMarker([this.model.lat, this.model.lng]);
+        this.map.setView([this.model.lat, this.model.lng], 12);
+      }
+    }
+  }
   private setMarker(latlng: L.LatLngExpression) {
     if (!this.map) return;
     if (this.marker) this.marker.setLatLng(latlng);
@@ -116,6 +174,7 @@ export class AdForm implements AfterViewInit {
   }
 
   save() {
+    // Ensure address is included in the model
     const op = this.id ? this.adsSvc.update(this.id!, this.model) : this.adsSvc.create(this.model);
     op.subscribe(() => this.router.navigateByUrl('/'));
   }

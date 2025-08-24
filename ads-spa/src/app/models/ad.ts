@@ -8,6 +8,7 @@ export interface Ad {
   lat?: number;
   lng?: number;
   createdAt: string;
+  address?: string;
 }
 
 export interface AdDto {
@@ -18,4 +19,5 @@ export interface AdDto {
   imageUrl?: string;
   lat?: number;
   lng?: number;
+  address?: string;
 }

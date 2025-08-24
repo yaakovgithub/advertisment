@@ -16,7 +16,7 @@
   <input type="number" [(ngModel)]="maxPrice" placeholder="Max $" />
   <button (click)="search()">Go</button>
   <button (click)="toggleNearMe()">{{ nearMe ? 'Clear location' : 'Near me' }}</button>
-  <button (click)="create()">+ New Ad</button>
+  <button (click)="openAdForm()">+ New Ad</button>
 </div>
 
 <div *ngIf="nearMe" id="nearme-map" style="height: 260px; border-radius: 8px; margin: 8px 0"></div>
@@ -38,7 +38,8 @@
     <div class="description">{{ a.description }}</div>
     <div class="price" *ngIf="a.price !== undefined">Price: ${{ a.price }}</div>
     <div class="actions">
-      <button (click)="edit(a)">Edit</button>
+      <button (click)="openAdForm(a.id)" style="margin-right: 8px">Edit</button>
+      <!-- <button (click)="edit(a)">Edit</button> -->
       <button (click)="remove(a)">Delete</button>
     </div>
   </div>
