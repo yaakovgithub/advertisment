@@ -40,3 +40,23 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+# Visual Studio
+.vs/
+*.suo
+
+# Build results
+bin/
+obj/
+
+# Debug / build artifacts
+*.dll
+*.pdb
+*.exe
+*.cache
+*.log
+
+# ASP.NET static assets
+staticwebassets.*
+
+# Node
+ads-spa/node_modules/
