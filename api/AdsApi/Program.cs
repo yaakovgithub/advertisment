@@ -19,7 +19,6 @@ static double Haversine(double lat1, double lon1, double lat2, double lon2)
 builder.Services.AddCors(o =>
     o.AddDefaultPolicy(p => p
     .AllowAnyOrigin()
-       // .WithOrigins("http://localhost:4200")
         .AllowAnyHeader()
         .AllowAnyMethod()));
 
