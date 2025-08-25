@@ -25,14 +25,11 @@ export class AdsList implements OnInit {
   nearMe = false;
   radius = 3000; // meters
   me?: GeolocationPosition;
-
   ads: Ad[] = [];
-
   private map?: L.Map;
-
   private meMarker?: L.Marker;
-
   private meCircle?: L.Circle;
+
   constructor(
     public adsSvc: AdsService,
     private router: Router,
@@ -111,12 +108,7 @@ export class AdsList implements OnInit {
       navigator.geolocation.getCurrentPosition(
         async (p) => {
           this.me = p;
-
-          // this.ensureMap();
-
           const latlng: L.LatLngExpression = [p.coords.latitude, p.coords.longitude];
-          // this.q = latlng.toString();
-
           const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${p.coords.latitude}&lon=${p.coords.longitude}`;
           try {
             const response = await fetch(url);
