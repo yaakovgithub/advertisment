@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { UserService } from '../../services/user.service';
 import { MatDialog } from '@angular/material/dialog';
 import { AdFormDialog } from '../ad-form-dialog/ad-form-dialog';
 import { AdsService } from '../../services/ads';
@@ -16,6 +17,7 @@ import * as L from 'leaflet';
   styleUrls: ['./ads-list.scss'],
 })
 export class AdsList implements OnInit {
+  currentUser: string = '';
   q = '';
   category = '';
   minPrice?: number;
@@ -31,8 +33,18 @@ export class AdsList implements OnInit {
   private meMarker?: L.Marker;
 
   private meCircle?: L.Circle;
-  constructor(public adsSvc: AdsService, private router: Router, private dialog: MatDialog) {}
+  constructor(
+    public adsSvc: AdsService,
+    private router: Router,
+    private dialog: MatDialog,
+    private userService: UserService
+  ) {
+    this.userService.currentUser$.subscribe((u) => {
+      this.currentUser = u?.username || '';
+    });
+  }
   openAdForm(id?: string) {
+    if (!this.currentUser) return;
     this.dialog
       .open(AdFormDialog, {
         width: '640px',
@@ -125,7 +137,7 @@ export class AdsList implements OnInit {
 
           if (this.meCircle) this.meCircle.setLatLng(latlng).setRadius(this.radius);
           else this.meCircle = L.circle(latlng, { radius: this.radius }).addTo(this.map!);
-          this.map!.invalidateSize(); // 👈 important
+          this.map!.invalidateSize();
           this.search();
         },
         (_) => {
@@ -147,9 +159,13 @@ export class AdsList implements OnInit {
 
   async search() {
     let filteredAds = this.adsSvc.ads$.getValue();
-    // Filter by category
+    // Filter by category or 'My Posts'
     if (this.category) {
-      filteredAds = filteredAds.filter((ad) => ad.category === this.category);
+      if (this.category === 'my-posts' && this.currentUser) {
+        filteredAds = filteredAds.filter((ad) => ad.username === this.currentUser);
+      } else {
+        filteredAds = filteredAds.filter((ad) => ad.category === this.category);
+      }
     }
     // Filter by min price
     if (typeof this.minPrice === 'number' && !isNaN(this.minPrice)) {
@@ -191,13 +207,23 @@ export class AdsList implements OnInit {
   }
 
   edit(a: Ad) {
-    this.router.navigate(['/edit', a.id]);
+    if (a.username === this.currentUser) {
+      this.router.navigate(['/edit', a.id]);
+    }
   }
   create() {
-    this.router.navigate(['/new']);
+    if (this.currentUser) {
+      this.router.navigate(['/new']);
+    }
   }
   remove(a: Ad) {
-    if (confirm('Delete this ad?')) this.adsSvc.remove(a.id).subscribe(() => this.search());
+    if (a.username === this.currentUser && confirm('Delete this ad?')) {
+      this.adsSvc.remove(a.id).subscribe(() => this.search());
+    }
+  }
+  logout() {
+    this.userService.logout();
+    this.router.navigate(['/login']);
   }
   getDistanceKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
     const R = 6371; // km

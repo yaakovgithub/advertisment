@@ -9,6 +9,7 @@ export interface Ad {
   lng?: number;
   createdAt: string;
   address?: string;
+  username: string;
 }
 
 export interface AdDto {
@@ -20,4 +21,5 @@ export interface AdDto {
   lat?: number;
   lng?: number;
   address?: string;
+  username?: string;
 }

@@ -6,6 +6,7 @@ import * as L from 'leaflet';
 
 import { AdsService } from '../../services/ads';
 import { Ad, AdDto } from '../../models/ad';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-ad-form',
@@ -14,6 +15,7 @@ import { Ad, AdDto } from '../../models/ad';
   templateUrl: './ad-form.html',
 })
 export class AdForm implements AfterViewInit {
+  private userService = inject(UserService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private adsSvc = inject(AdsService);
@@ -101,11 +103,17 @@ export class AdForm implements AfterViewInit {
   }
 
   save() {
-    // Ensure address is included in the model
+    // Set username for new ads
+    if (!this.id) {
+      const user = this.userService.getCurrentUser();
+      if (user) {
+        this.model.username = user.username;
+      }
+    }
     const op = this.id ? this.adsSvc.update(this.id!, this.model) : this.adsSvc.create(this.model);
     op.subscribe(() => {
       this.close.emit();
-      this.router.navigateByUrl('/');
+      this.router.navigateByUrl('/dashboard');
     });
   }
 }

@@ -11,12 +11,17 @@
     <option>Rent</option>
     <option>Events</option>
     <option>Travel</option>
+    <option value="my-posts" *ngIf="currentUser">My Posts</option>
   </select>
   <input type="number" [(ngModel)]="minPrice" placeholder="Min $" />
   <input type="number" [(ngModel)]="maxPrice" placeholder="Max $" />
   <button (click)="search()">Go</button>
   <button (click)="toggleNearMe()">{{ nearMe ? 'Clear location' : 'Near me' }}</button>
-  <button (click)="openAdForm()">+ New Ad</button>
+  <button (click)="openAdForm()" *ngIf="currentUser">+ New Ad</button>
+  <div class="user-bar" *ngIf="currentUser">
+    <span class="current-user">Logged in as: {{ currentUser }}</span>
+    <button (click)="logout()" class="logout-btn">Logout</button>
+  </div>
 </div>
 
 <div *ngIf="nearMe" id="nearme-map" style="height: 260px; border-radius: 8px; margin: 8px 0"></div>
@@ -61,7 +66,8 @@
         </ng-template>
       </div>
     </div>
-    <div class="title">{{ a.title }}</div>
+  <div class="title">{{ a.title }}</div>
+  <div class="ad-owner">Owner: {{ a.username }}</div>
     <ng-container *ngIf="a.imageUrl; else noImage">
       <img [src]="a.imageUrl" alt="" class="thumbnail" />
       <div class="description">{{ a.description }}</div>
@@ -72,12 +78,12 @@
     <div class="bottom-meta">
       <div class="bottom-row">
         <div class="price" *ngIf="a.price !== undefined">Price: ${{ a.price }}</div>
-        <div class="actions">
+        <div class="actions" *ngIf="a.username === currentUser">
           <button class="action-btn edit-btn" (click)="openAdForm(a.id)">Edit</button>
           <button class="action-btn delete-btn" (click)="remove(a)">Delete</button>
         </div>
       </div>
-      <div class="ad-meta-fixed">Created at: {{ a.createdAt | date:'medium' }}</div>
+      <div class="ad-meta-fixed">Created at: {{ a.createdAt | date : 'medium' }}</div>
     </div>
   </div>
 </div>
