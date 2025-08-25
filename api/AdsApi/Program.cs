@@ -87,11 +87,12 @@ record Ad(
     double? Lat,
     double? Lng,
     string? Address,
-    DateTime CreatedAt)
+    DateTime CreatedAt,
+    string Username)
 {
     public static Ad FromDto(AdDto dto) =>
         new(Guid.NewGuid(), dto.Title, dto.Description, dto.Category, dto.Price,
-            dto.ImageUrl, dto.Lat, dto.Lng, dto.Address, DateTime.UtcNow);
+            dto.ImageUrl, dto.Lat, dto.Lng, dto.Address, DateTime.UtcNow, dto.Username);
 
     public Ad UpdateFrom(AdDto dto)
         => this with
@@ -103,7 +104,8 @@ record Ad(
             ImageUrl = dto.ImageUrl,
             Lat = dto.Lat,
             Lng = dto.Lng,
-            Address = dto.Address
+            Address = dto.Address,
+            Username = dto.Username
         };
 }
 
@@ -115,7 +117,8 @@ record AdDto(
     string? ImageUrl,
     double? Lat,
     double? Lng,
-    string? Address);
+    string? Address,
+    string Username);
 
 class AdsStore
 {
