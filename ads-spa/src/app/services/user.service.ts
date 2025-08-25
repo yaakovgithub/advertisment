@@ -13,13 +13,13 @@ export class UserService {
 
   constructor() {
     const saved = localStorage.getItem('currentUser');
-    const user = saved ? JSON.parse(saved) as User : null;
+    const user = saved ? (JSON.parse(saved) as User) : null;
     this.currentUserSubject = new BehaviorSubject<User | null>(user);
     this.currentUser$ = this.currentUserSubject.asObservable();
   }
 
   login(username: string): User {
-    let user = this.users.find(u => u.username === username);
+    let user = this.users.find((u) => u.username === username);
     if (!user) {
       user = { username };
       this.users.push(user);
