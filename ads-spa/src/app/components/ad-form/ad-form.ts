@@ -103,12 +103,9 @@ export class AdForm implements AfterViewInit {
   }
 
   save() {
-    // Set username for new ads
-    if (!this.id) {
-      const user = this.userService.getCurrentUser();
-      if (user) {
-        this.model.username = user.username;
-      }
+    const user = this.userService.getCurrentUser();
+    if (user) {
+      this.model.username = user.username;
     }
     const op = this.id ? this.adsSvc.update(this.id!, this.model) : this.adsSvc.create(this.model);
     op.subscribe(() => {
